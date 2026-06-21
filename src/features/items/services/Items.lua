@@ -120,23 +120,11 @@ function Addon.Items:ServiceInit()
         A table containing items for players to start with.
     ]]
     ---@type table<SWSlotNumberEnum, Item|fun(player: NoirPlayer): Item>
-    self.StarterItems = {
-        [1] = self:GetItem("WeldingTorch"),
-        [2] = self:GetItem("Compass"),
-        [3] = self:GetItem("Flashlight"),
-        [4] = self:GetItem("Binoculars"),
-        [5] = self:GetItem("FirstAid"),
-        [6] = self:GetItem("FirstAid"),
-        [7] = self:GetItem("Radio"),
-        [8] = self:GetItem("OxygenMask"),
-        [10] = function(player)
-            if player:GetPosition()[15] > 20000 then
-                return self:GetItem("Arctic")
-            end
+    self.StarterItems = {}
 
-            return self:GetItem("Parachute")
-        end
-    }
+    for slot, item in pairs(Config.Items.StarterItems) do
+        self.StarterItems[slot] = self:GetItem(item)
+    end
 end
 
 --[[

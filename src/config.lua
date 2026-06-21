@@ -70,6 +70,18 @@ Config.Help.CommandsPerPage = 3
 Config.Items = {}
 Config.Items.DroppedItemDespawnInterval = 30 -- seconds
 
+Config.Items.StarterItems = {
+    [1] = "WeldingTorch",
+    [2] = "Compass",
+    [3] = "Flashlight",
+    [4] = "Binoculars",
+    [5] = "FirstAid",
+    [6] = "FirstAid",
+    [7] = "Radio",
+    [8] = "OxygenMask",
+    [10] = "Parachute"
+}
+
 --[[
     Cleanup service related config.
 ]]
