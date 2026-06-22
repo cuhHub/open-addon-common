@@ -132,10 +132,10 @@ end
 ]]
 function Addon.Items:ServiceStart()
     --[[
-        A connection to `Spawn`'s `OnJoinSpawn` event.
+        A connection to `PlayerService`'s `OnJoin` event.
     ]]
     ---@param player NoirPlayer
-    self.OnJoinSpawn = Addon.Spawn.OnJoinSpawn:Connect(function(player)
+    self.OnJoinSpawn = Noir.Services.PlayerService.OnJoin:Connect(function(player)
         Addon.Libs.Player:GetCharacterDefinite(player, function() -- wait for character to load first
             self:RemoveGameStarterItems(player)
             self:GiveStarterItems(player)
