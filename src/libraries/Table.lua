@@ -68,3 +68,28 @@ function Addon.Libs.Table:Shuffle(tbl)
 
     return clone
 end
+
+--[[
+    Picks a random value from the table using weights.
+]]
+---@param tbl table<integer, any> The table to pick from
+---@param weightFunc fun(value: any): number The function called to get the weight of each value
+---@return any|nil
+function Addon.Libs.Table:Pick(tbl, weightFunc)
+    local totalWeight = 0
+
+    for _, item in pairs(tbl) do
+        totalWeight = totalWeight + weightFunc(item)
+    end
+
+    local randomWeight = math.random() * totalWeight
+    local currentWeight = 0
+
+    for _, item in pairs(tbl) do
+        currentWeight = currentWeight + weightFunc(item)
+
+        if randomWeight <= currentWeight then
+            return item
+        end
+    end
+end
