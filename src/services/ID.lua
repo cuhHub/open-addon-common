@@ -51,7 +51,7 @@ end
 ]]
 ---@return integer
 function Addon.ID:GetID()
-    self._ID = self._ID + 1
+    self._ID = math.floor(self._ID + 1)
     self:Save("ID", self._ID)
 
     return self._ID
