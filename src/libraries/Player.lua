@@ -124,3 +124,11 @@ function Addon.Libs.Player:SearchPlayer(query)
         Noir.Services.PlayerService:GetPlayer(ID) or
         Noir.Services.PlayerService:SearchPlayerByName(query)
 end
+
+--[[
+    Returns a random player in the server, or nil if none are in the server.
+]]
+---@return NoirPlayer|nil
+function Addon.Libs.Player:GetRandomPlayer()
+    return Noir.Libraries.Table:Random(Noir.Services.PlayerService:GetPlayers(false))
+end
