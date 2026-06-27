@@ -79,7 +79,17 @@ function Addon.Libs.Table:Pick(tbl, weightFunc)
     local totalWeight = 0
 
     for _, item in pairs(tbl) do
+        local weight = weightFunc(item)
+
+        if weight < 0 then
+            error("Addon.Libs.Table:Pick()", "Weight cannot be negative")
+        end
+
         totalWeight = totalWeight + weightFunc(item)
+    end
+
+    if totalWeight <= 0 then
+        return
     end
 
     local randomWeight = math.random() * totalWeight
