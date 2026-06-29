@@ -106,14 +106,16 @@ function Noir.TypeChecking:Assert(origin, parameterName, value, ...)
             return
         end
 
-        -- Value == Any Class
-        if typeToCheck == "class" and Noir.IsClass(value) then
-            return
-        end
+        if Noir.IsClass(value) then
+            -- Value == Any Class
+            if typeToCheck == "class" then
+                return
+            end
 
-        -- Value == Exact Class
-        if Noir.IsClass(typeToCheck) and typeToCheck:IsSameType(value) then ---@diagnostic disable-line param-type-mismatch
-            return
+            -- Value == Exact Class
+            if Noir.IsClass(typeToCheck) and value:IsA(typeToCheck) then
+                return
+            end
         end
     end
 
@@ -559,7 +561,8 @@ Noir.Classes = {}
 
 --[[
     Create a class that objects can be created from.<br>
-    Note that classes can inherit from other classes.
+    Note that classes can inherit from other classes.<br>
+    **Class names must be unique!** Otherwise, the comparison helper methods may work improperly.
 
     local MyClass = Noir.Class("MyClass")
 
@@ -574,12 +577,13 @@ Noir.Classes = {}
     local object = MyClass:New("Cuh4")
     object:MyName() -- "Cuh4"
 ]]
----@param name string
+---@param name string **Must be unique**
 ---@param ... NoirClass
 ---@return NoirClass
 function Noir.Class(name, ...)
     --[[
-        A class that objects can be created from.
+        A class that objects can be created from.<br>
+        **Class names must be unique!** Otherwise, the comparison helper methods may work improperly.
 
         local MyClass = Noir.Class("MyClass")
 
@@ -704,12 +708,57 @@ function Noir.Class(name, ...)
     end
 
     --[[
-        Returns if a class/object is the same type as another.<br>
-        If `other` is not a class, it will return false.
+        Returns if the provided class is the same as `self` or inherits from it.
     ]]
     ---@param other NoirClass
     ---@return boolean
+    function class:IsA(other)
+        if not Noir.IsClass(other) then
+            return false
+        end
+
+        if self:IsExactly(other) then
+            return true
+        end
+
+        for _, parent in pairs(self._Parents) do
+            if parent:IsA(other) then
+                return true
+            end
+        end
+
+        return false
+    end
+
+    --[[
+        Returns if the provided class is exactly the same as `self`.<br>
+        Use `:IsA()` to check if the provided class inherits from `self` as well.
+    ]]
+    ---@param other NoirClass
+    ---@return boolean
+    function class:IsExactly(other)
+        if not Noir.IsClass(other) then
+            return false
+        end
+
+        return self.ClassName == other.ClassName
+    end
+
+    --[[
+        Returns if a class/object is the same type as another.<br>
+        If `other` is not a class, it will return false.<br>
+        *deprecated: the method name is largely misleading, use `:IsRelated()` instead.
+    ]]
+    ---@deprecated
+    ---@param other NoirClass
+    ---@return boolean
     function class:IsSameType(other)
+        Noir.Libraries.Deprecation:Deprecated(
+            "Noir.Class().IsSameType()",
+            nil,
+            "This method will be getting removed in a future update. Consider using `:IsExactly()` or `:IsA()` instead."
+        )
+
         -- Check if even class
         if not Noir.IsClass(other) then
             return false
@@ -727,7 +776,7 @@ function Noir.Class(name, ...)
                 return true
             end
 
-            if parent:IsSameType(self) then
+            if parent:IsSameType(self) then ---@diagnostic disable-line: deprecated
                 return true
             end
         end
@@ -738,7 +787,7 @@ function Noir.Class(name, ...)
                 return true
             end
 
-            if parent:IsSameType(other) then
+            if parent:IsSameType(other) then ---@diagnostic disable-line: deprecated
                 return true
             end
         end
@@ -866,6 +915,7 @@ end
 ---@field OnLoad NoirEvent Fired when this body is loaded
 ---@field OnUnload NoirEvent Fired when this body is unloaded
 ---@field OnDamage NoirEvent Arguments: damage (number), voxelX (number), voxelY (number), voxelZ (number) | Fired when this body is damaged
+---@field OnButtonPress NoirEvent Arguments: player (NoirPlayer|nil), buttonName (string), isPressed (boolean) | Fired when a button is pressed
 Noir.Classes.Body = Noir.Class("Body")
 
 --[[
@@ -889,6 +939,7 @@ function Noir.Classes.Body:Init(ID, owner, loaded)
     self.OnLoad = Noir.Libraries.Events:Create()
     self.OnUnload = Noir.Libraries.Events:Create()
     self.OnDamage = Noir.Libraries.Events:Create()
+    self.OnButtonPress = Noir.Libraries.Events:Create()
 end
 
 --[[
@@ -8247,6 +8298,70 @@ function Noir.Libraries.Table:Map(tbl, callback)
     return new
 end
 
+--[[
+    Calls the function for every value in the provided table, keeping the value in a new table if the
+    function returns true.
+
+    local myTbl = {1, 2, 3, 1}
+
+    local myFilteredTbl = Noir.Libraries.Table:Filter(myTbl, function(index, value)
+        return value == 1
+    end)
+
+    print(myFilteredTbl) -- {[1] = 1, [4] = 1}
+]]
+---@param tbl table
+---@param callback fun(index: any, value: any): boolean
+---@return table
+function Noir.Libraries.Table:Filter(tbl, callback)
+    -- Type checking
+    Noir.TypeChecking:Assert("Noir.Libraries.Table:Filter()", "tbl", tbl, "table")
+    Noir.TypeChecking:Assert("Noir.Libraries.Table:Filter()", "callback", callback, "function")
+
+    -- Filter the table
+    local new = {}
+
+    for index, value in pairs(tbl) do
+        if callback(index, value) then
+            new[index] = value
+        end
+    end
+
+    return new
+end
+
+--[[
+    Calls the function for every value in the provided table, keeping the value in a new table if the
+    function returns false. Unlike `:Filter()`, the indices are not maintained and `table.insert` is used instead.
+
+    local myTbl = {1, 2, 3, 1}
+
+    local myFilteredTbl = Noir.Libraries.Table:FilterSequential(myTbl, function(index, value)
+        return value == 1
+    end)
+
+    print(myFilteredTbl) -- {[1] = 1, [2] = 1}
+]]
+---@param tbl table
+---@param callback fun(index: any, value: any): boolean
+---@return table
+function Noir.Libraries.Table:FilterSequential(tbl, callback)
+    -- Type checking
+    Noir.TypeChecking:Assert("Noir.Libraries.Table:FilterSequential()", "tbl", tbl, "table")
+    Noir.TypeChecking:Assert("Noir.Libraries.Table:FilterSequential()", "callback", callback, "function")
+
+    -- Filter the table
+    local new = {}
+
+    for index, value in pairs(tbl) do
+        if callback(index, value) then
+            table.insert(new, value)
+        end
+    end
+
+    return new
+end
+
 --------------------------------------------------------
 -- [Noir] Services
 --------------------------------------------------------
@@ -8945,7 +9060,7 @@ function Noir.Services.HoarderService:_Deserialize(class, serialized, lookupClas
     class:_SetupObject(instance)
 
     -- Call `OnPreDeserialize`
-    if Noir.Classes.Hoardable:IsSameType(instance)  and instance.OnPreDeserialize then
+    if instance:IsA(Noir.Classes.Hoardable) then
         ---@diagnostic disable-next-line: param-type-mismatch
         instance:OnPreDeserialize(serialized, lookupClasses)
     end
@@ -8970,7 +9085,7 @@ function Noir.Services.HoarderService:_Deserialize(class, serialized, lookupClas
     instance._Parents = class._Parents
 
     -- Call `OnPostDeserialize`
-    if Noir.Classes.Hoardable:IsSameType(instance)  and instance.OnPostDeserialize then
+    if instance:IsA(Noir.Classes.Hoardable) then
         ---@diagnostic disable-next-line: param-type-mismatch
         instance:OnPostDeserialize(serialized, lookupClasses)
     end
@@ -9072,16 +9187,10 @@ function Noir.Services.HoarderService:Hoard(service, tblName, instance)
 
     -- Serialize
     instance = Noir.Libraries.Table:DeepCopy(instance)
-
-    if instance.OnPreSerialize then
-        instance:OnPreSerialize()
-    end
+    instance:OnPreSerialize()
 
     local serialized = self:_Serialize(instance)
-
-    if instance.OnPostSerialize then
-        instance:OnPostSerialize(serialized)
-    end
+    instance:OnPostSerialize(serialized)
 
     -- Save serialized instance
     self:_InitSaveData(service, tblName)
@@ -12085,6 +12194,7 @@ end
 ---@field OnBodyLoad NoirEvent Arguments: body (NoirBody) | Fired when a body is loaded
 ---@field OnBodyUnload NoirEvent Arguments: body (NoirBody) | Fired when a body is unloaded
 ---@field OnBodyDamage NoirEvent Arguments: body (NoirBody), damage (number), voxelX (number), voxelY (number), voxelZ (number) | Fired when a body is damaged
+---@field OnBodyButtonPress NoirEvent Arguments: body (NoirBody), player (NoirPlayer|nil), buttonName (string), isPressed (boolean) | Fired when a button is pressed
 ---
 ---@field _OnGroupSpawnConnection NoirConnection A connection to the onGroupSpawn event
 ---@field _OnBodySpawnConnection NoirConnection A connection to the onVehicleSpawn event
@@ -12117,6 +12227,7 @@ function Noir.Services.VehicleService:ServiceInit()
     self.OnBodyLoad = Noir.Libraries.Events:Create()
     self.OnBodyUnload = Noir.Libraries.Events:Create()
     self.OnBodyDamage = Noir.Libraries.Events:Create()
+    self.OnBodyButtonPress = Noir.Libraries.Events:Create()
 
     -- Load saved vehicles and bodies
     self:_LoadSavedBodies()
@@ -12186,6 +12297,18 @@ function Noir.Services.VehicleService:ServiceStart()
         end
 
         self:_DamageBody(body, x, y, z, damage)
+    end)
+
+    -- Listen for body button presses
+    self._OnBodyButtonPressConnection = Noir.Callbacks:Connect("onButtonPress", function(vehicle_id, peer_id, button_name, is_pressed)
+        local body = self:GetBody(vehicle_id)
+
+        if not body then
+            return
+        end
+
+        local player = Noir.Services.PlayerService:GetPlayer(peer_id)
+        self:_ButtonPressBody(body, player, button_name, is_pressed)
     end)
 end
 
@@ -12481,6 +12604,26 @@ function Noir.Services.VehicleService:_DamageBody(body, x, y, z, damage)
     -- Fire events
     body.OnDamage:Fire(damage, x, y, z)
     self.OnBodyDamage:Fire(body, damage, x, y, z)
+end
+
+--[[
+    Fires events for button presses.<br>
+    Used internally.
+]]
+---@param body NoirBody
+---@param player NoirPlayer|nil
+---@param button_name string
+---@param is_pressed boolean
+function Noir.Services.VehicleService:_ButtonPressBody(body, player, button_name, is_pressed)
+    -- Type checking
+    Noir.TypeChecking:Assert("Noir.Services.VehicleService:_ButtonPressBody()", "body", body, Noir.Classes.Body)
+    Noir.TypeChecking:Assert("Noir.Services.VehicleService:_ButtonPressBody()", "player", player, Noir.Classes.Player, "nil")
+    Noir.TypeChecking:Assert("Noir.Services.VehicleService:_ButtonPressBody()", "button_name", button_name, "string")
+    Noir.TypeChecking:Assert("Noir.Services.VehicleService:_ButtonPressBody()", "is_pressed", is_pressed, "boolean")
+
+    -- Fire events
+    body.OnButtonPress:Fire(player, button_name, is_pressed)
+    self.OnBodyButtonPress:Fire(body, player, button_name, is_pressed)
 end
 
 --[[
@@ -13653,7 +13796,7 @@ end
     The current version of Noir.<br>
     Follows [Semantic Versioning.](https://semver.org)
 ]]
-Noir.Version = "3.0.0"
+Noir.Version = "3.1.0"
 
 --[[
     Returns the MAJOR, MINOR, and PATCH of the current Noir version.
