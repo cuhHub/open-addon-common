@@ -46,20 +46,22 @@ end
 function Addon.Classes.Closet:_HandleCleanup(value)
     if type(value) == "function" then
         value()
-    elseif Noir.Classes.Widget:IsSameType(value) then
-        value:Remove() ---@diagnostic disable-line
-    elseif Noir.Classes.Vehicle:IsSameType(value) then
-        value:Despawn() ---@diagnostic disable-line
-    elseif Noir.Classes.Body:IsSameType(value) then
-        value:Despawn() ---@diagnostic disable-line
-    elseif Noir.Classes.Connection:IsSameType(value) then
-        if value.Connected then
-            value:Disconnect() ---@diagnostic disable-line
+    elseif Noir.IsClass(value) then
+        if value:IsA(Noir.Classes.Widget) then
+            value:Remove() ---@diagnostic disable-line
+        elseif value:IsA(Noir.Classes.Vehicle) then
+            value:Despawn() ---@diagnostic disable-line
+        elseif value:IsA(Noir.Classes.Body) then
+            value:Despawn() ---@diagnostic disable-line
+        elseif value:IsA(Noir.Classes.Connection) then
+            if value.Connected then
+                value:Disconnect() ---@diagnostic disable-line
+            end
+        elseif value:IsA(Noir.Classes.Task) then
+            value:Remove() ---@diagnostic disable-line
+        elseif value:IsA(Noir.Classes.Object) then
+            value:Despawn() ---@diagnostic disable-line
         end
-    elseif Noir.Classes.Task:IsSameType(value) then
-        value:Remove() ---@diagnostic disable-line
-    elseif Noir.Classes.Object:IsSameType(value) then
-        value:Despawn() ---@diagnostic disable-line
     else
         error("Closet", ":_HandleCleanup(): Can't cleanup value due to invalid value type: %s", type(value))
     end
