@@ -40,7 +40,7 @@ Addon.Message = Noir.Services:CreateService(
 ---@param player NoirPlayer|nil The player, or nil for everyone
 ---@param title string The title of the message
 ---@param content string The contents of the message
----@param notificationType SWNotificationTypeEnum
+---@param notificationType SWNotificationTypeEnum The type of notification to send
 ---@param ... any Arguments to pass to content format
 function Addon.Message:Send(player, title, content, notificationType, ...)
     self:SendMessage(player, title, content, ...)
@@ -64,7 +64,7 @@ end
 ---@param player NoirPlayer|nil The player, or nil for everyone
 ---@param title string The title of the notification
 ---@param content string The contents of the notification
----@param notificationType SWNotificationTypeEnum
+---@param notificationType SWNotificationTypeEnum The type of notification to send
 ---@param ... any Arguments to pass to content format
 function Addon.Message:SendNotification(player, title, content, notificationType, ...)
     Noir.Services.NotificationService:Notify(title, content, notificationType, player, ...)

@@ -52,8 +52,8 @@ end
     Returns the squared distance between two matrices.<br>
     This is more performant than `matrix.distance` as `sqrt` is not used.
 ]]
----@param matrix1 SWMatrix
----@param matrix2 SWMatrix
+---@param matrix1 SWMatrix The first matrix
+---@param matrix2 SWMatrix The second matrix
 ---@return number
 function Addon.Libs.Matrix:GetSquaredDistance(matrix1, matrix2)
     local x1, y1, z1 = matrix.position(matrix1)

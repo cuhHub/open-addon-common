@@ -51,7 +51,7 @@ end
 --[[
     Formats the name of a vehicle.
 ]]
----@param vehicle NoirVehicle
+---@param vehicle NoirVehicle The vehicle to format
 ---@return string
 function Addon.Libs.Vehicle:FormatVehicleName(vehicle)
     local name = vehicle.PrimaryBody and vehicle.PrimaryBody:GetName() or nil
@@ -66,7 +66,7 @@ end
 --[[
     Returns if a seat is occupied.
 ]]
----@param seat SWVehicleSeatData
+---@param seat SWVehicleSeatData The seat to check
 ---@return boolean
 function Addon.Libs.Vehicle:IsSeatOccupied(seat)
     if seat.seated_id == -1 then

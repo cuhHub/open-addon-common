@@ -73,7 +73,7 @@ end
 --[[
     Sets the handler for the preset.
 ]]
----@param handler WeatherPresetHandler
+---@param handler WeatherPresetHandler The handler function for the preset
 function Addon.Classes.WeatherPreset:SetHandler(handler)
     self.Handler = handler
 end
