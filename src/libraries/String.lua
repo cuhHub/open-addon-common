@@ -72,3 +72,20 @@ end
 function Addon.Libs.String:FormatPercentage(value)
     return ("%.0f%%"):format(value * 100)
 end
+
+--[[
+    Truncates a string, adding the `ending` if it was truncated.
+]]
+---@param str string The string to truncate
+---@param length integer The length to truncate to
+---@param ending string|nil The ending to add if truncated
+---@return string
+function Addon.Libs.String:Truncate(str, length, ending)
+    ending = ending or "..."
+
+    if #str > length then
+        return str:sub(1, length - #ending)..ending
+    end
+
+    return str
+end
