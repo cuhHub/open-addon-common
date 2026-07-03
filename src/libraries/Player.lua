@@ -132,3 +132,21 @@ end
 function Addon.Libs.Player:GetRandomPlayer()
     return Noir.Libraries.Table:Random(Noir.Services.PlayerService:GetPlayers(false))
 end
+
+--[[
+    Returns if the position is within x meters of any player.
+]]
+---@param position SWMatrix The position to check
+---@param distance number The distance in meters to check
+---@return boolean
+function Addon.Libs.Player:IsPositionNearAnyPlayer(position, distance)
+    local squaredDistance = distance * distance
+
+    for _, player in pairs(Noir.Services.PlayerService:GetPlayers(false)) do
+        if Addon.Libs.Matrix:GetSquaredDistance(position, player:GetPosition()) <= squaredDistance then
+            return true
+        end
+    end
+
+    return false
+end
