@@ -124,7 +124,10 @@ end
 ]]
 ---@param tips table<integer, string> The tips to register
 function Addon.Tips:RegisterTips(tips)
-    self.Tips = Noir.Libraries.Table:Merge(self.Tips, tips)
+    for _, tip in pairs(tips) do
+        Addon.Logger:Info("Tips: Registered tip: %s", tip)
+        table.insert(self.Tips, tips)
+    end
 end
 
 --[[
