@@ -126,7 +126,7 @@ end
 function Addon.Tips:RegisterTips(tips)
     for _, tip in pairs(tips) do
         Addon.Logger:Info("Tips: Registered tip: %s", tip)
-        table.insert(self.Tips, tips)
+        table.insert(self.Tips, tip)
     end
 end
 
