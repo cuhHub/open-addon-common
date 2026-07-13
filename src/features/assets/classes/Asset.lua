@@ -152,17 +152,13 @@ end
 ---@param properties table<string, any> The properties to match
 ---@return boolean
 function Addon.Classes.Asset:MatchProperties(properties)
-    local matches = 0
-
-    for key, value in pairs(self.Properties) do
-        if properties[key] == value then
-            matches = matches + 1
-        else
+    for key, value in pairs(properties) do
+        if self.Properties[key] ~= value then
             return false
         end
     end
 
-    return matches == Noir.Libraries.Table:Length(properties)
+    return true
 end
 
 --[[
