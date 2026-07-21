@@ -41,13 +41,32 @@ function Addon.Cleanup:ServiceInit()
     --[[
         How many IDs to iterate through per cleanup cycle.
     ]]
-    self.ID_BATCH_SIZE = 100
+    ---@type integer
+    self.ID_BATCH_SIZE = Config.Cleanup.ObjectCleanupBatchSize or 50
+
+    --[[
+        The tick interval for object cleanup updates.
+    ]]
+    ---@type integer
+    self._ObjectCleanupUpdateIntervalTicks = 10
 
     --[[
         The last cleaned up object ID.
     ]]
     ---@type integer
-    self._LastCleanupObjectID = nil
+    self._LastCleanupObjectID = 0
+
+    --[[
+        Cached maximum object ID from FindCurrentObjectID().
+    ]]
+    ---@type integer|nil
+    self._CachedMaxObjectID = nil
+
+    --[[
+        Whether initial cleanup has completed.
+    ]]
+    ---@type boolean
+    self._InitialCleanupComplete = false
 
     --[[
         Object exceptions indexed by object ID.
@@ -83,14 +102,13 @@ function Addon.Cleanup:ServiceStart()
     end, Config.Cleanup.OilSpillCleanupInterval, nil, true)
 
     --[[
-        A repeated task for clean ups.
+        A task for checking exception expiry (less frequent - every 10 seconds).
     ]]
-    self.ObjectCleanupTask = Noir.Services.TaskService:AddTimeTask(function()
-        self:PromptObjectCleanup()
+    self.ExceptionExpiryTask = Noir.Services.TaskService:AddTimeTask(function()
         self:CheckExceptionsExpiry()
-    end, Config.Cleanup.ObjectCleanupInterval, nil, true)
+    end, 10, nil, true)
 
-    self:PerformInitialCleanup()
+    self:ScheduleInitialCleanup()
 
     Noir.Services.HoarderService:AddCheckpoint(
         self,
@@ -119,7 +137,7 @@ end
 ]]
 ---@return integer
 function Addon.Cleanup:FindCurrentObjectID()
-    local temporaryObject = Noir.Services.ObjectService:SpawnObject(2, matrix.translation(0, 0, 0))
+    local temporaryObject = Noir.Services.ObjectService:SpawnObject(0, matrix.translation(0, 0, 0))
     temporaryObject:Despawn()
 
     return temporaryObject.ID
@@ -234,6 +252,11 @@ end
 ---@return boolean
 function Addon.Cleanup:CleanupObjectByID(objectID, noSetID)
     local object = Noir.Services.ObjectService:GetObject(objectID)
+
+    if not object:Exists() then
+        return false
+    end
+
     return self:CleanupObject(object, noSetID)
 end
 
@@ -244,7 +267,7 @@ end
 ---@param noSetID boolean|nil Whether to not set the last cleaned up object ID. Defaults to false.
 ---@return boolean
 function Addon.Cleanup:CleanupObject(object, noSetID)
-    if not object:Exists() then
+    if self:IsObjectExemptFromCleanup(object) then
         return false
     end
 
@@ -265,42 +288,85 @@ function Addon.Cleanup:CleanupObject(object, noSetID)
 end
 
 --[[
-    Performs initial cleanup.
+    Performs initial cleanup over multiple ticks to avoid blocking.
 ]]
 function Addon.Cleanup:PerformInitialCleanup()
-    Addon.Logger:Info("Cleanup: Performing initial cleanup")
+    Addon.Logger:Info("Cleanup: Performing initial cleanup (deferred)")
+end
 
-    for objectID = 0, self:FindCurrentObjectID() do
-        self:CleanupObjectByID(objectID, true)
+--[[
+    Schedules the initial cleanup using IterateOverTicks.
+]]
+function Addon.Cleanup:ScheduleInitialCleanup()
+    if self._InitialCleanupComplete then
+        return
+    end
+
+    local currentMaxID = self:FindCurrentObjectID()
+    local objectIDs = {}
+
+    for i = 0, currentMaxID do
+        table.insert(objectIDs, i)
+    end
+
+    Noir.Services.TaskService:IterateOverTicks(objectIDs, self.ID_BATCH_SIZE or 50, function(_, objectID, _, completed)
+        if completed then
+            self._InitialCleanupComplete = true
+            Addon.Logger:Info("Cleanup: Initial cleanup completed")
+
+            self._CachedMaxObjectID = currentMaxID
+            self._LastCleanupObjectID = currentMaxID
+            self:ScheduleObjectCleanup()
+        else
+            self:CleanupObjectByID(objectID, true)
+        end
+    end)
+end
+
+--[[
+    Cleans up objects over multiple ticks to avoid stuttering.
+]]
+function Addon.Cleanup:PromptObjectCleanup()
+    local currentMaxID = self._CachedMaxObjectID or 0
+
+    local batchSize = self.ID_BATCH_SIZE or 50
+    local startID = self._LastCleanupObjectID + 1
+    local endID = startID + batchSize - 1
+
+    if endID > currentMaxID then
+        endID = currentMaxID
+    end
+
+    for objectID = startID, endID do
+        self:CleanupObjectByID(objectID)
+    end
+
+    self._LastCleanupObjectID = endID
+
+    if endID >= currentMaxID then
+        self._CachedMaxObjectID = self:FindCurrentObjectID()
+        self._LastCleanupObjectID = 0
     end
 end
 
 --[[
-    Cleans up objects.
+    Schedules the object cleanup for the next tick.
 ]]
-function Addon.Cleanup:PromptObjectCleanup()
-    if not self._LastCleanupObjectID then
-        self._LastCleanupObjectID = self:FindCurrentObjectID()
-        Addon.Logger:Info("Cleanup: Setting last cleaned up object ID to %d (first run)", self._LastCleanupObjectID)
-    end
-
-    local to = self._LastCleanupObjectID + self.ID_BATCH_SIZE
-
-    for objectID = self._LastCleanupObjectID, to do
-        self:CleanupObjectByID(objectID)
-    end
+function Addon.Cleanup:ScheduleObjectCleanup()
+    Noir.Services.TaskService:AddTickTask(function()
+        self:PromptObjectCleanup()
+        self:ScheduleObjectCleanup()
+    end, self._ObjectCleanupUpdateIntervalTicks or 10)
 end
 
 --[[
     Checks for expired object cleanup exceptions.
 ]]
 function Addon.Cleanup:CheckExceptionsExpiry()
-    for _, exception in pairs(self.ObjectCleanupExceptions) do
+    for objectID, exception in pairs(self.ObjectCleanupExceptions) do
         if exception:HasExpired() then
             self:CleanupObject(exception.Object, true) -- this will remove the exception too
-        end
-
-        if not exception.Object:Exists() then
+        elseif not exception.Object:Exists() then
             self:RemoveObjectCleanupException(exception.Object)
         end
     end
