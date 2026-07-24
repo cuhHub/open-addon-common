@@ -54,7 +54,7 @@ function Addon.Prompts:ServiceStart()
     ]]
     ---@param player NoirPlayer
     self.OnLeaveConnection = Noir.Services.PlayerService.OnLeave:Connect(function(player)
-        if not self:GetPrompt(player) then
+        if not self:HasPrompt(player) then
             return
         end
 
@@ -72,16 +72,25 @@ end
 ---@param player NoirPlayer The player the prompt is for
 ---@return Prompt
 function Addon.Prompts:CreatePrompt(name, text, player)
-    if self:GetPrompt(player) then
+    if self:HasPrompt(player) then
         self:RemovePrompt(player)
     end
 
     local prompt = Addon.Classes.Prompt:New(name, text, player)
     prompt:Setup()
 
-    self.Prompts[player.ID] = prompt
+    self.Prompts[player.Steam] = prompt
 
     return prompt
+end
+
+--[[
+    Returns if the provided player has a prompt active.
+]]
+---@param player NoirPlayer The player to check
+---@return boolean
+function Addon.Prompts:HasPrompt(player)
+    return self:GetPrompt(player) ~= nil
 end
 
 --[[
@@ -90,7 +99,7 @@ end
 ---@param player NoirPlayer The player to check
 ---@return Prompt|nil
 function Addon.Prompts:GetPrompt(player)
-    return self.Prompts[player.ID]
+    return self.Prompts[player.Steam]
 end
 
 --[[
@@ -104,8 +113,8 @@ function Addon.Prompts:RemovePrompt(player)
         error("Addon.Prompts:RemovePrompt()", "Player has no active prompt")
     end
 
-    prompt:Cleanup()
-    self.Prompts[player.ID] = nil
+    prompt:Dismiss()
+    self.Prompts[player.Steam] = nil
 end
 
 --[[
@@ -131,7 +140,6 @@ function Addon.Prompts:CreateCommands()
                 return
             end
 
-            prompt:Dismiss()
             self:RemovePrompt(context.Player)
         end
     )
