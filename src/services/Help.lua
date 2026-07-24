@@ -112,9 +112,21 @@ function Addon.Help:CreateCommands()
                 return
             end
 
+            local messageParts = {
+                Addon.API.Server.ServerData.Name..": "..Addon.API.Server.ServerData.Description,
+            }
+
+            if Config.Help.WebsiteLink then
+                table.insert(messageParts, "Website: "..Config.Help.WebsiteLink)
+            end
+
+            if Config.Help.WebsiteIncludesTutorial then
+                table.insert(messageParts, "A tutorial can be found via the website above.")
+            end
+
             Addon.Libs.Commands:HandlePaginateList(context, "Commands", self.Commands, Config.Help.CommandsPerPage, nil, function(message)
-                return ("Server Description:\n%s\n\n%s"):format(
-                    Addon.API.Server.ServerData.Description,
+                return ("%s\n\n%s"):format(
+                    table.concat(messageParts, "\n"),
                     message
                 )
             end)

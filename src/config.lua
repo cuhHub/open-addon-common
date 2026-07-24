@@ -63,6 +63,8 @@ Config.Help.CommandFormat = table.concat({
 }, "\n")
 
 Config.Help.CommandsPerPage = 3
+Config.Help.WebsiteLink = nil
+Config.Help.WebsiteIncludesTutorial = nil
 
 --[[
     Items service related config.
