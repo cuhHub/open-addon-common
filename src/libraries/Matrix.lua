@@ -65,3 +65,45 @@ function Addon.Libs.Matrix:GetSquaredDistance(matrix1, matrix2)
 
     return (dx * dx) + (dy * dy) + (dz * dz)
 end
+
+--[[
+    Returns the normalized 2D direction (XZ plane) from one matrix to another, along with the length.
+]]
+---@param from SWMatrix The source matrix
+---@param to SWMatrix The target matrix
+---@return number directionX The normalized X component
+---@return number directionZ The normalized Z component
+---@return number length The length of the direction vector pre-normalization
+function Addon.Libs.Matrix:GetDirection2D(from, to)
+    local fromX, _, fromZ = matrix.position(from)
+    local toX, _, toZ = matrix.position(to)
+
+    local deltaX = toX - fromX
+    local deltaZ = toZ - fromZ
+    local length = math.sqrt(deltaX * deltaX + deltaZ * deltaZ)
+
+    if length == 0 then
+        error("Addon.Libs.Matrix:GetDirection2D()", "Direction is coincident.")
+    end
+
+    return deltaX / length, deltaZ / length, length
+end
+
+--[[
+    Projects a point forward from a position matrix in the XZ plane by a given distance
+    along a direction.
+]]
+---@param position SWMatrix The starting position
+---@param directionX number The normalized X component of the direction
+---@param directionZ number The normalized Z component of the direction
+---@param distance number The distance to project forward
+---@return SWMatrix
+function Addon.Libs.Matrix:ProjectForward2D(position, directionX, directionZ, distance)
+    local x, y, z = matrix.position(position)
+
+    return matrix.translation(
+        x + (directionX * distance),
+        y,
+        z + (directionZ * distance)
+    )
+end
