@@ -67,25 +67,25 @@ end
     Sets up the prompt.
 ]]
 function Addon.Classes.Prompt:Setup()
-    self:Send()
+    -- self:Send()
     self:CreateUI()
 end
 
 --[[
     Sends the prompt message.
 ]]
-function Addon.Classes.Prompt:Send()
-    Addon.Message:Send(
-        self.Player,
-        self.Name,
-        table.concat({
-            self.Text,
-            "-------------",
-            "Type '?dismiss' to dismiss this prompt (or '?dis')"
-        }, "\n"),
-        Addon.Enums.NotificationType.INFO
-    )
-end
+-- function Addon.Classes.Prompt:Send()
+--     Addon.Message:Send(
+--         self.Player,
+--         self.Name,
+--         table.concat({
+--             self.Text,
+--             "-------------",
+--             "Type '?dismiss' to dismiss this prompt (or '?dis')"
+--         }, "\n"),
+--         Addon.Enums.NotificationType.INFO
+--     )
+-- end
 
 --[[
     Creates the prompt UI.
