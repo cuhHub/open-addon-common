@@ -60,3 +60,17 @@ end
 function Addon.Libs.Math:Lerp(a, b, t)
     return a + (b - a) * t
 end
+
+--[[
+    Returns a random float between min and max.
+]]
+---@param min number The minimum value
+---@param max number The maximum value
+---@return number
+function Addon.Libs.Math:RandomFloat(min, max)
+    if min > max then
+        min, max = max, min
+    end
+
+    return math.random() * (max - min) + min
+end
