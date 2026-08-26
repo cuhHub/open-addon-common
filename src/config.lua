@@ -133,3 +133,24 @@ Config.Requests.Timeout = 15
 ]]
 Config.Perf = {}
 Config.Perf.MaxMeasurementsForTPSMeasurementProcesses = 125 -- such good naming
+
+--[[
+    Physical interactions related config.
+]]
+Config.PhysicalInteractions = {}
+Config.PhysicalInteractions.DefaultLifetime = 30 -- seconds
+Config.PhysicalInteractions.PopupRenderDistance = 15 -- meters
+Config.PhysicalInteractions.PopupYOffset = 2.5 -- meters
+Config.PhysicalInteractions.ProhibitedDistanceToVehicle = 10 -- meters
+Config.PhysicalInteractions.PositionOffset = 1.5 -- meters
+Config.PhysicalInteractions.PitchRotation = math.rad(35)
+Config.PhysicalInteractions.BatteryName = "Battery"
+Config.PhysicalInteractions.RetractButtonName = "Retract"
+Config.PhysicalInteractions.UpdateTickInterval = 1
+
+--[[
+    Zoning related config.
+]]
+Config.Zoning = {}
+Config.Zoning.ZoneUpdateTickInterval = 5
+Config.Zoning.ZoneUpdateBatchSize = 15
