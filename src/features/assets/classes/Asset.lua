@@ -189,7 +189,8 @@ function Addon.Classes.Asset:GetPosition(noOffset)
     local position = self:GetPositions()[1]
 
     if not position then
-        error("Addon.Classes.Asset:GetPosition()", "No position in the world for the asset. This should never happen.")
+        Addon.Logger:Warning("Addon.Classes.Asset:GetPosition(): No position in the world for the asset (ocean tile issue? tile: %s).", self.Location.Data.tile)
+        return matrix.identity()
     end
 
     if noOffset then
