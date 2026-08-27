@@ -1,0 +1,121 @@
+--------------------------------------------------------
+-- Classes - Team
+--------------------------------------------------------
+
+--[[
+    Copyright (C) 2026 cuhHub - All Rights Reserved
+    - Unauthorized copying of this file, via any medium is strictly prohibited
+    - Proprietary and confidential
+]]
+
+-------------------------------
+-- // Main
+-------------------------------
+
+--[[
+    A class representing an event team.
+]]
+---@class Team: NoirClass
+---@field New fun(self: Team, ID: integer, name: string): Team
+Addon.Classes.Team = Noir.Class("Team")
+
+--[[
+    Initializes `Team` class instances.
+]]
+---@param ID integer The team ID
+---@param name string The team name
+function Addon.Classes.Team:Init(ID, name)
+    --[[
+        The ID of this team.
+    ]]
+    self.ID = ID
+
+    --[[
+        The name of this team.
+    ]]
+    self.Name = name
+
+    --[[
+        The players in this team, indexed by peer ID.
+    ]]
+    ---@type table<integer, TeamMember>
+    self.Members = {}
+end
+
+--[[
+    Adds a player to this team.
+]]
+---@param player NoirPlayer The player to add
+function Addon.Classes.Team:AddMember(player)
+    local member = Addon.Classes.TeamMember:New(player, self)
+    self.Members[player.ID] = member
+
+    member:OnAdd()
+end
+
+--[[
+    Gets a team member.
+]]
+---@param player NoirPlayer The player to get
+---@return TeamMember
+function Addon.Classes.Team:GetMember(player)
+    return self.Members[player.ID]
+end
+
+--[[
+    Removes a member from this team.
+]]
+---@param member TeamMember The member to remove
+function Addon.Classes.Team:RemoveMember(member)
+    member:OnRemove()
+    self.Members[member.Player.ID] = nil
+end
+
+--[[
+    Clears the team.
+]]
+function Addon.Classes.Team:Clear()
+    for _, member in pairs(self:GetMembers()) do
+        self:RemoveMember(member)
+    end
+end
+
+--[[
+    Returns all members in this team.
+]]
+---@return table<integer, TeamMember>
+function Addon.Classes.Team:GetMembers()
+    return self.Members
+end
+
+--[[
+    Returns the amonut of members in this team.
+]]
+---@return integer
+function Addon.Classes.Team:GetMemberCount()
+    return Noir.Libraries.Table:Length(self:GetMembers())
+end
+
+--[[
+    Returns formatted names of all players in this team.
+]]
+---@return table<integer, string>
+function Addon.Classes.Team:GetFormattedNames()
+    ---@type table<integer, string>
+    local formattedNames = {}
+
+    for _, member in pairs(self:GetMembers()) do
+        table.insert(formattedNames, Addon.Libs.Player:FormatPlayerName(member.Player))
+    end
+
+    return formattedNames
+end
+
+--[[
+    Returns if a player is in this team.
+]]
+---@param player NoirPlayer The player to check
+---@return boolean
+function Addon.Classes.Team:IsInTeam(player)
+    return self:GetMember(player) ~= nil
+end
