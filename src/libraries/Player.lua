@@ -150,3 +150,34 @@ function Addon.Libs.Player:IsPositionNearAnyPlayer(position, distance)
 
     return false
 end
+
+--[[
+    Heals the player.
+]]
+---@param player NoirPlayer
+function Addon.Libs.Player:HealPlayer(player)
+    local character = player:GetCharacter()
+
+    if not character then
+        return
+    end
+
+    character:Revive()
+    character:Heal(100)
+end
+
+--[[
+    Clears a player's items.
+]]
+---@param player NoirPlayer The player to clear
+function Addon.Libs.Player:ClearPlayerItems(player)
+    local character = player:GetCharacter()
+
+    if not character then
+        return
+    end
+
+    for slot = 1, 10 do
+        character:GiveItem(slot, 0)
+    end
+end
