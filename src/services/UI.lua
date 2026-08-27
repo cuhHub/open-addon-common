@@ -125,17 +125,17 @@ function Addon.UI:WrapWidget(identifier, widget)
 end
 
 --[[
-    Creates a repeated task for a player to be used for UI updates.<br>
-    The task is automatically removed when the player leaves
+    Creates a task to be used for UI updates.
+    The task is automatically removed when the provided player leaves, if one is provided.
 ]]
----@param player NoirPlayer The player to create the task for
+---@param player NoirPlayer|nil The player to create the task for, or nil to not link to a player
 ---@param callback fun() The callback to call every update
 ---@return NoirTask
 function Addon.UI:OnUIUpdate(player, callback)
     local task
 
     task = Noir.Services.TaskService:AddTimeTask(function()
-        if not player.InGame then
+        if player and not player.InGame then
             task:Remove()
             return
         end
