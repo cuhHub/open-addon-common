@@ -60,6 +60,15 @@ function Addon.Classes.PlayerZone:GetEntityPosition(entity)
 end
 
 --[[
+    Returns if the given entity is still valid.
+]]
+---@param entity NoirPlayer The player to check
+---@return boolean
+function Addon.Classes.PlayerZone:CheckIsEntityValid(entity)
+    return entity.InGame
+end
+
+--[[
     Returns the ID for the given entity.
 ]]
 ---@param entity NoirPlayer The player to check
