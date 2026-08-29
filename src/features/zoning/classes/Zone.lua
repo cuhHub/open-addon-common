@@ -32,6 +32,7 @@
 ---@field GetEntitiesWithin fun(self: Zone): table<integer, T>
 ---@field FindAllEntities fun(self: Zone): table<integer, T>
 ---@field GetEntityPosition fun(self: Zone, entity: T): SWMatrix
+---@field CheckIsEntityValid fun(self: Zone, entity: T): boolean
 ---@field GetIDForEntity fun(self: Zone, entity: T): integer
 ---@field CheckIsEntityIn fun(self: Zone, entity: T): boolean
 ---@field HandleEnter fun(self: Zone, entity: T)
@@ -162,6 +163,14 @@ function Addon.Classes.Zone:GetEntityPosition(entity)
 end
 
 --[[
+    Returns if the given entity is still valid.<br>
+    *abstractmethod*
+]]
+function Addon.Classes.Zone:CheckIsEntityValid(entity)
+    error("Addon.Classes.Zone:CheckIsEntityValid()", "Method not implemented in subclass.")
+end
+
+--[[
     Returns the ID for the given entity.<br>
     *abstractmethod*
 ]]
@@ -174,6 +183,10 @@ end
     *abstractmethod*
 ]]
 function Addon.Classes.Zone:CheckIsEntityIn(entity)
+    if not self:CheckIsEntityValid(entity) then
+        return false
+    end
+
     return self:IsPositionIn(self:GetEntityPosition(entity))
 end
 
