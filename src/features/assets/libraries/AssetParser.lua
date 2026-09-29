@@ -133,12 +133,11 @@ end
 ---@param text string The text to parse
 ---@return table<integer, string>, table<string, any>
 function Addon.Libs.AssetParser:ParseAssetText(text)
-    local lines = Noir.Libraries.String:Split(text, "\n")
-
-    if not lines[1] then
+    if text == "" then
         return {}, {}
     end
 
+    local lines = Noir.Libraries.String:Split(text:gsub("\r", ""), "\n") -- strip "\r" (windows clrf line endings)
     local tags = self:ParseTags(lines[1])
 
     ---@type table<integer, string>
