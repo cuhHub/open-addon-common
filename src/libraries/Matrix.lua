@@ -83,7 +83,7 @@ function Addon.Libs.Matrix:GetDirection2D(from, to)
     local length = math.sqrt(deltaX * deltaX + deltaZ * deltaZ)
 
     if length == 0 then
-        error("Addon.Libs.Matrix:GetDirection2D()", "Direction is coincident.")
+        return 0, 0, 0
     end
 
     return deltaX / length, deltaZ / length, length
