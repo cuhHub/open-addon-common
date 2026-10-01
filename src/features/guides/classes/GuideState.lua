@@ -169,6 +169,8 @@ function Addon.Classes.GuideState:StartGuide(guide)
     self:SendCurrentMessage()
 
     guide:HandleOnStart(player)
+
+    Addon.Logger:Info("GuideState: Started guide '%s' for player %s (%s)", guide.ID, player.Name, player.Steam)
 end
 
 --[[
@@ -202,6 +204,8 @@ function Addon.Classes.GuideState:EndGuide(reason)
             Addon.Enums.NotificationType.SUCCESS
         )
     end
+
+    Addon.Logger:Info("GuideState: Ended guide '%s' for player %s (%s)", self.Guide.ID, player.Name, player.Steam)
 
     self.Guide = nil
     self:SetMessageIndex(1)
@@ -237,6 +241,9 @@ function Addon.Classes.GuideState:Next()
 
     self:SetMessageIndex(self:GetMessageIndex() + 1)
     self:SendCurrentMessage()
+
+    local player = self:GetPlayer()
+    Addon.Logger:Info("GuideState: Next message for player %s (%s)", player.Name, player.Steam)
 end
 
 --[[
