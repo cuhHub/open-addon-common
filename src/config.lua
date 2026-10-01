@@ -156,3 +156,9 @@ Config.PhysicalInteractions.UpdateTickInterval = 1
 Config.Zoning = {}
 Config.Zoning.ZoneUpdateTickInterval = 5
 Config.Zoning.ZoneUpdateBatchSize = 15
+
+--[[
+    Hints related config.
+]]
+Config.Hints = {}
+Config.Hints.HintCooldown = 60 * 60 -- minutes
