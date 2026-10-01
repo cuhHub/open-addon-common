@@ -68,7 +68,13 @@ function Addon.Help:GetCommandList()
     for _, command in pairs(Noir.Services.CommandService:GetCommands()) do
         if not command.RequiresAdmin then
             local formatted = Config.Help.CommandFormat:gsub("$NAME", command.Name)
-            formatted = formatted:gsub("$ALIASES", table.concat(command.Aliases, ", ?"))
+
+            if #command.Aliases >= 1 then
+                formatted = formatted:gsub("$ALIASES", "?"..table.concat(command.Aliases, ", ?"))
+            else
+                formatted = formatted:gsub("$ALIASES", "No Aliases")
+            end
+
             formatted = formatted:gsub("$DESCRIPTION", command.Description)
 
             table.insert(commands, formatted)

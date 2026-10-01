@@ -58,7 +58,7 @@ Config.Tips.SendInterval = 2 * 60 -- seconds
 Config.Help = {}
 
 Config.Help.CommandFormat = table.concat({
-    "/== ?$NAME (?$ALIASES)",
+    "/== ?$NAME ($ALIASES)",
     "$DESCRIPTION"
 }, "\n")
 
