@@ -87,7 +87,7 @@ function Addon.Help:CreateUI()
         local widget = Addon.UI:WrapWidget("Help", Noir.Services.UIService:CreateScreenPopup(
             "Use \"?help\" for a list of commands.",
             -0.9,
-            0,
+            Config.Help.PopupY,
             true
         ))
 

@@ -66,6 +66,8 @@ Config.Help.CommandsPerPage = 3
 Config.Help.WebsiteLink = nil
 Config.Help.WebsiteIncludesTutorial = nil
 
+Config.Help.PopupY = -0.16
+
 --[[
     Items service related config.
 ]]
