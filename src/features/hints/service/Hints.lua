@@ -20,7 +20,7 @@
 
 -------------------------------
 -- // Main
--------------------------------
+------------------------------- 
 
 --[[
     Provides an easy way of giving players hints during gameplay.
@@ -88,7 +88,7 @@ end
 function Addon.Hints:_SendHint(player, title, content)
     Addon.Message:Send(
         player,
-        ("%s [Hint]"):format(title),
+        ("%s (Hint)"):format(title),
         content,
         Addon.Enums.NotificationType.INFO
     )
