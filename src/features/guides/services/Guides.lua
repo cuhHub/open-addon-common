@@ -201,6 +201,40 @@ function Addon.Guides:CreateCommands()
     )
 
     Noir.Services.CommandService:CreateCommand(
+        "gprev",
+        {"gp"},
+        false,
+        false,
+        false,
+        "Returns to the previous message in the current guide.",
+
+        function(context)
+            if not context.HasPermission then
+                return
+            end
+
+            local state = self:GetGuideState(context.Player)
+
+            if not state then
+                return -- should never happen
+            end
+
+            if not state:HasGuide() then
+                Addon.Message:Send(
+                    context.Player,
+                    "Guide",
+                    "You have no guide active.",
+                    Addon.Enums.NotificationType.ERROR
+                )
+
+                return
+            end
+
+            state:Previous()
+        end
+    )
+
+    Noir.Services.CommandService:CreateCommand(
         "gcancel",
         {"gc"},
         false,

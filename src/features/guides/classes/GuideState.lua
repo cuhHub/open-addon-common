@@ -143,6 +143,9 @@ end
 ---@param index integer The index of the message
 function Addon.Classes.GuideState:SetMessageIndex(index)
     self.MessageIndex = index
+
+    local player = self:GetPlayer()
+    Addon.Logger:Info("GuideState: Set message index to %s for %s (%s)", index, player.Name, player.Steam)
 end
 
 --[[
@@ -241,9 +244,23 @@ function Addon.Classes.GuideState:Next()
 
     self:SetMessageIndex(self:GetMessageIndex() + 1)
     self:SendCurrentMessage()
+end
 
-    local player = self:GetPlayer()
-    Addon.Logger:Info("GuideState: Next message for player %s (%s)", player.Name, player.Steam)
+--[[
+    Goes to the previous message in the current guide,
+    or does nothing if no previous.
+]]
+function Addon.Classes.GuideState:Previous()
+    if not self:HasGuide() then
+        error("Addon.Classes.GuideState:Previous()", "No guide is active.")
+    end
+
+    if self:GetMessageIndex() == 1 then
+        return
+    end
+
+    self:SetMessageIndex(self:GetMessageIndex() - 1)
+    self:SendCurrentMessage()
 end
 
 --[[
@@ -263,8 +280,10 @@ function Addon.Classes.GuideState:SendCurrentMessage()
         "---",
         message,
         "---",
-        "Type '?gcancel' to cancel.",
-        "Type '?gnext' to continue."
+        "Type:",
+        "'?gn' - Next",
+        "'?gp' - Previous",
+        "'?gc' - Cancel"
     }, "\n")
 
     self.MessagePopup:Update()
@@ -276,6 +295,7 @@ function Addon.Classes.GuideState:SendCurrentMessage()
             message,
             "----------------",
             "Type '?gcancel' to cancel the guide.",
+            "Type '?gprev' to go back.",
             "Type '?gnext' to continue the guide."
         }, "\n"),
         Addon.Enums.NotificationType.INFO
