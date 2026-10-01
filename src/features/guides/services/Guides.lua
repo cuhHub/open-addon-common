@@ -96,7 +96,9 @@ function Addon.Guides:RegisterGuide(ID, name, command, messages)
         end)
     )
 
+    guide:Setup()
     self.Guides[ID] = guide
+
     Addon.Logger:Info("Guides: Registered guide with ID %s and name %s (cmd: '?%s')", ID, name, command)
 
     return guide

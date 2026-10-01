@@ -48,14 +48,36 @@ function Addon.Classes.Guide:Init(ID, name, command, messages)
     self.Name = name
 
     --[[
+        The command string to start this guide.
+    ]]
+    self.Command = command
+
+    --[[
         The messages in the guide.
     ]]
     self.Messages = messages
 
     --[[
-        The command for the guide.
+        An event fired when a player starts this guide.<br>
+        Arguments: player (NoirPlayer)
     ]]
-    self.Command = Noir.Services.CommandService:CreateCommand(
+    self.OnStart = Noir.Libraries.Events:Create()
+
+    --[[
+        An event fired when a player ends this guide.<br>
+        Arguments: player (NoirPlayer), reason (GuideEndReason)
+    ]]
+    self.OnEnd = Noir.Libraries.Events:Create()
+end
+
+--[[
+    Sets up the guide (creates commands, registers tips, etc.).
+]]
+function Addon.Classes.Guide:Setup()
+    local command = self:GetCommand()
+    local name = self:GetName()
+
+    Noir.Services.CommandService:CreateCommand(
         command,
         {},
         false,
@@ -85,17 +107,9 @@ function Addon.Classes.Guide:Init(ID, name, command, messages)
         end
     )
 
-    --[[
-        An event fired when a player starts this guide.<br>
-        Arguments: player (NoirPlayer)
-    ]]
-    self.OnStart = Noir.Libraries.Events:Create()
-
-    --[[
-        An event fired when a player ends this guide.<br>
-        Arguments: player (NoirPlayer), reason (GuideEndReason)
-    ]]
-    self.OnEnd = Noir.Libraries.Events:Create()
+    Addon.Tips:RegisterTips({
+        ("Type '?%s' to start the '%s' guide."):format(command, name),
+    })
 end
 
 --[[
@@ -112,6 +126,14 @@ end
 ---@return string
 function Addon.Classes.Guide:GetName()
     return self.Name
+end
+
+--[[
+    Returns the command string to start the guide.
+]]
+---@return string
+function Addon.Classes.Guide:GetCommand()
+    return self.Command
 end
 
 --[[
