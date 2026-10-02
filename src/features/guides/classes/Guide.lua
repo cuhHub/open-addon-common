@@ -76,10 +76,10 @@ function Addon.Classes.Guide:Init(ID, name, command, messages)
         local guidesFormatted = {}
 
         for _, guide in pairs(guides) do
-            table.insert(guidesFormatted, ("%s: ?%s"):format(guide:GetName(), guide:GetCommand()))
+            table.insert(guidesFormatted, ("%s - ?%s"):format(guide:GetName(), guide:GetCommand()))
         end
 
-        local list = Addon.Libs.String:BulletList(guidesFormatted, "-")
+        local list = Addon.Libs.String:BulletList(guidesFormatted, "*")
         return "Additional Guides:\n"..list
     end)
 
