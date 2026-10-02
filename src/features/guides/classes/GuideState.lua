@@ -122,7 +122,7 @@ function Addon.Classes.GuideState:HasReachedEndOfGuide()
         error("Addon.Classes.GuideState:HasReachedEndOfGuide()", "No guide is active.")
     end
 
-    return self.MessageIndex >= #self:GetGuide():GetMessages()
+    return self.MessageIndex >= self:GetGuide():GetMessageCount()
 end
 
 --[[
@@ -138,10 +138,27 @@ function Addon.Classes.GuideState:GetCurrentMessage()
 end
 
 --[[
+    Returns if the index is within bounds.
+]]
+---@param index integer The index to check
+---@return boolean
+function Addon.Classes.GuideState:WithinBounds(index)
+    if not self:HasGuide() then
+        error("Addon.Classes.GuideState:WithinBounds()", "No guide is active.")
+    end
+
+    return index >= 1 and index <= self:GetGuide():GetMessageCount()
+end
+
+--[[
     Sets the current message index.
 ]]
 ---@param index integer The index of the message
 function Addon.Classes.GuideState:SetMessageIndex(index)
+    if not self:WithinBounds(index) then
+        error("Addon.Classes.GuideState:SetMessageIndex()", "Index %s is out of bounds.", index)
+    end
+
     self.MessageIndex = index
 
     local player = self:GetPlayer()
@@ -210,8 +227,8 @@ function Addon.Classes.GuideState:EndGuide(reason)
 
     Addon.Logger:Info("GuideState: Ended guide '%s' for player %s (%s)", self.Guide.ID, player.Name, player.Steam)
 
-    self.Guide = nil
     self:SetMessageIndex(1)
+    self.Guide = nil
 end
 
 --[[
@@ -229,6 +246,27 @@ function Addon.Classes.GuideState:Cancel()
 end
 
 --[[
+    Goes to the requested message in the current guide.
+]]
+---@param index integer The index of the message
+function Addon.Classes.GuideState:GoToMessage(index)
+    if not self:HasGuide() then
+        error("Addon.Classes.GuideState:GoToMessage()", "No guide is active.")
+    end
+
+    if not self:WithinBounds(index) then
+        error("Addon.Classes.GuideState:GoToMessage()", "Index %s is out of bounds.", index)
+    end
+
+    if index == self:GetMessageIndex() then
+        return
+    end
+
+    self:SetMessageIndex(index)
+    self:SendCurrentMessage()
+end
+
+--[[
     Goes to the next message in the current guide,
     or completes the guide if no next.
 ]]
@@ -242,8 +280,7 @@ function Addon.Classes.GuideState:Next()
         return
     end
 
-    self:SetMessageIndex(self:GetMessageIndex() + 1)
-    self:SendCurrentMessage()
+    self:GoToMessage(self:GetMessageIndex() + 1)
 end
 
 --[[
@@ -259,8 +296,7 @@ function Addon.Classes.GuideState:Previous()
         return
     end
 
-    self:SetMessageIndex(self:GetMessageIndex() - 1)
-    self:SendCurrentMessage()
+    self:GoToMessage(self:GetMessageIndex() - 1)
 end
 
 --[[

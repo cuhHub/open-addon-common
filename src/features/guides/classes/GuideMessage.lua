@@ -22,20 +22,24 @@
 -- // Main
 -------------------------------
 
+---@alias GuideMessageContent
+---| string
+---| fun(): string
+
 --[[
     Represents a message in a guide.
 ]]
 ---@class GuideMessage: NoirClass
----@field New fun(self: GuideMessage, content: string): GuideMessage
+---@field New fun(self: GuideMessage, content: GuideMessageContent): GuideMessage
 Addon.Classes.GuideMessage = Noir.Class("GuideMessage")
 
 --[[
     Initializes new `GuideMessage` instances.
 ]]
----@param content string The content of the message
+---@param content GuideMessageContent The content of the message
 function Addon.Classes.GuideMessage:Init(content)
     --[[
-        The content of the message.
+        The content of the message (can be a callable function).
     ]]
     self.Content = content
 end
@@ -45,5 +49,11 @@ end
 ]]
 ---@return string
 function Addon.Classes.GuideMessage:GetContent()
-    return self.Content
+    local content = self.Content
+
+    if type(content) == "function" then
+        return content()
+    else
+        return content
+    end
 end

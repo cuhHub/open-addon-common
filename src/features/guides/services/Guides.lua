@@ -92,7 +92,7 @@ function Addon.Guides:RegisterGuide(ID, name, command, messages)
         name,
         command,
         Noir.Libraries.Table:Map(messages, function(index, value)
-            return Addon.Classes.GuideMessage:New(value)
+            return self:CreateGuideMessage(value)
         end)
     )
 
@@ -102,6 +102,15 @@ function Addon.Guides:RegisterGuide(ID, name, command, messages)
     Addon.Logger:Info("Guides: Registered guide with ID %s and name %s (cmd: '?%s')", ID, name, command)
 
     return guide
+end
+
+--[[
+    Creates a new guide message.
+]]
+---@param content GuideMessageContent The message
+---@return GuideMessage
+function Addon.Guides:CreateGuideMessage(content)
+    return Addon.Classes.GuideMessage:New(content)
 end
 
 --[[
@@ -196,7 +205,47 @@ function Addon.Guides:CreateCommands()
                 return
             end
 
-            state:Next()
+            if context.Args[1] then
+                local to = tonumber(context.Args[1])
+
+                if not to then
+                    Addon.Message:Send(
+                        context.Player,
+                        "Guide",
+                        "The page number you entered is invalid.",
+                        Addon.Enums.NotificationType.ERROR
+                    )
+
+                    return
+                end
+
+                if not state:WithinBounds(to) then
+                    Addon.Message:Send(
+                        context.Player,
+                        "Guide",
+                        "The page number you entered is out of bounds.\nMake sure it is between 1-%s.",
+                        Addon.Enums.NotificationType.ERROR,
+                        state:GetGuide():GetMessageCount()
+                    )
+
+                    return
+                end
+
+                if to == state:GetMessageIndex() then
+                    Addon.Message:Send(
+                        context.Player,
+                        "Guide",
+                        "You are already on that page.",
+                        Addon.Enums.NotificationType.ERROR
+                    )
+
+                    return
+                end
+
+                state:GoToMessage(to)
+            else
+                state:Next()
+            end
         end
     )
 

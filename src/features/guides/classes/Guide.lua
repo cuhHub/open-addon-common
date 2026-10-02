@@ -68,6 +68,22 @@ function Addon.Classes.Guide:Init(ID, name, command, messages)
         Arguments: player (NoirPlayer), reason (GuideEndReason)
     ]]
     self.OnEnd = Noir.Libraries.Events:Create()
+
+    local finalMessage = Addon.Guides:CreateGuideMessage(function()
+        local guides = Addon.Guides:GetGuides()
+
+        ---@type table<integer, string>
+        local guidesFormatted = {}
+
+        for _, guide in pairs(guides) do
+            table.insert(guidesFormatted, ("%s: ?%s"):format(guide:GetName(), guide:GetCommand()))
+        end
+
+        local list = Addon.Libs.String:BulletList(guidesFormatted, "-")
+        return "Additional Guides:\n"..list
+    end)
+
+    self:AddMessage(finalMessage)
 end
 
 --[[
@@ -134,6 +150,14 @@ end
 ---@return string
 function Addon.Classes.Guide:GetCommand()
     return self.Command
+end
+
+--[[
+    Adds a message to the guide.
+]]
+---@param message GuideMessage The message to add
+function Addon.Classes.Guide:AddMessage(message)
+    table.insert(self:GetMessages(), message)
 end
 
 --[[
