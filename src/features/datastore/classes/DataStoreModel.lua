@@ -130,6 +130,18 @@ function Addon.Classes.DataStoreModel:OnLoad() end
 function Addon.Classes.DataStoreModel:OnPostLoad() end
 
 --[[
+    Called after this model instance is saved.
+    *abstractmethod*
+]]
+function Addon.Classes.DataStoreModel:OnSave() end
+
+--[[
+    Called after this model instance is unsaved.
+    *abstractmethod*
+]]
+function Addon.Classes.DataStoreModel:OnUnsave() end
+
+--[[
     Loads a model instance for the provided player.
     *staticmethod*
 ]]

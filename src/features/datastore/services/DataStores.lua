@@ -221,6 +221,8 @@ end
 function Addon.DataStores:SaveData(model)
     Addon.Logger:Info("DataStores: Saving data for key %s with data: %s", model.Key, model:_GetJSONFields())
     Addon.API.PersistentData:SaveData(model.Key, model:_GetJSONFields())
+
+    model:OnSave()
 end
 
 --[[
@@ -230,4 +232,6 @@ end
 function Addon.DataStores:UnsaveData(model)
     Addon.Logger:Info("DataStores: Unsaving data for key %s", model.Key)
     Addon.API.PersistentData:DeleteData(model.Key)
+
+    model:OnUnsave()
 end
