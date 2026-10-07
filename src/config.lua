@@ -162,3 +162,14 @@ Config.Zoning.ZoneUpdateBatchSize = 15
 ]]
 Config.Hints = {}
 Config.Hints.HintCooldown = 60 * 60 -- minutes
+
+--[[
+    Supporter lockdown related config.
+]]
+Config.SupporterLockdown = {}
+Config.SupporterLockdown.Enabled = false
+
+Config.SupporterLockdown.WhitelistedTiers = {
+    Addon.Enums.APISupporterTier.DiscordBooster,
+    Addon.Enums.APISupporterTier.PatreonBacker
+}
