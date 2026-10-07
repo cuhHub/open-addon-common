@@ -44,6 +44,20 @@ function Addon.SupporterLockdown:ServiceStart()
     ]]
     ---@param player NoirPlayer
     self.OnJoinConnection = Noir.Services.PlayerService.OnJoin:Connect(function(player)
+        self:HandlePlayer(player)
+    end)
+
+    for _, player in pairs(Noir.Services.PlayerService:GetPlayers(true)) do
+        self:HandlePlayer(player)
+    end
+end
+
+--[[
+    Checks if a player is allowed to join, and if not, performs logic.
+]]
+---@param player NoirPlayer The player to check
+function Addon.SupporterLockdown:HandlePlayer(player)
+    Addon.API:RunWhenReady(function()
         self:CanPlayerJoin(player, function(allowed)
             if allowed then
                 return
