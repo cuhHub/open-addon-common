@@ -117,5 +117,7 @@ function Addon.SupporterLockdown:CanPlayerJoin(player, callback)
 
     Addon.API.Player:GetPlayerData(player, function(data)
         callback(self:IsTierAllowed(data.SupporterTier))
+    end, false, function() -- no data
+        callback(false)
     end)
 end
