@@ -198,12 +198,11 @@ function Addon.API.Player:BeginLinking(player, callback, errorCallback)
 
         callback(decoded.linking_code, decoded.expires_in / 60)
     end, function(response)
-        if not errorCallback then
-            return
-        end
-
         Addon.Logger:Warning("API.Player:BeginLinking(): Failed to link player: "..response.Text)
-        errorCallback()
+
+        if errorCallback then
+            errorCallback()
+        end
     end)
 end
 
@@ -216,12 +215,13 @@ function Addon.API.Player:CancelLinking(player)
 end
 
 --[[
-    Returns data on the player.
+    Returns data on the player (or nil if no data).
 ]]
 ---@param player NoirPlayer The player to get data of
 ---@param callback fun(data: APIPlayer) The callback to get data from
 ---@param ignoreCache boolean|nil Whether to ignore the cache
-function Addon.API.Player:GetPlayerData(player, callback, ignoreCache)
+---@param errorCallback fun()|nil The callback called when this operation goes wrong (e.g. no data for player)
+function Addon.API.Player:GetPlayerData(player, callback, ignoreCache, errorCallback)
     local cached = self:GetCachedPlayerData(player)
 
     if cached and not ignoreCache then
@@ -231,6 +231,10 @@ function Addon.API.Player:GetPlayerData(player, callback, ignoreCache)
 
     Addon.API.Conversion:HTTPGET(Config.API.URL..Addon.Enums.APIServiceRoute.Players..player.Steam, self:_PlayerResponseCallback(player, callback), function(response)
         Addon.Logger:Warning("API.Player:GetPlayerData(): Failed to get player data: "..response.Text)
+
+        if errorCallback then
+            errorCallback()
+        end
     end)
 end
 
