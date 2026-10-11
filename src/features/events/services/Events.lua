@@ -184,6 +184,9 @@ function Addon.Events:ServiceStart()
 
     -- Create commands
     self:CreateCommands()
+
+    -- Register flags
+    self:RegisterFlags()
 end
 
 --[[
@@ -227,6 +230,10 @@ end
 ]]
 ---@param player NoirPlayer The player to teleport
 function Addon.Events:TeleportPlayerToHub(player)
+    if not Addon.Flags:IsEnabled("Events.HubTeleport") then
+        return
+    end
+
     local character = player:GetCharacter()
 
     if not character then
@@ -1036,4 +1043,14 @@ function Addon.Events:CreateSpectatorUI()
             spectatorUI:Update()
         end)
     end)
+end
+
+--[[
+    Registers flags.
+]]
+function Addon.Events:RegisterFlags()
+    Addon.Flags:RegisterFlag(
+        "Events.HubTeleport",
+        true
+    )
 end
