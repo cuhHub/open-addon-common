@@ -249,6 +249,7 @@ function Addon.Events:TeleportPlayerToHub(player)
     end
 
     player:Teleport(Noir.Libraries.Matrix:Offset(self.HUB_POSITION, 0, 5, 0))
+    Addon.Logger:Info("Events: Teleported %s to the hub.", Addon.Libs.Player:FormatPlayerName(player))
 end
 
 --[[
@@ -301,6 +302,8 @@ function Addon.Events:StartEvent()
 
     self:_AnnounceEventStart()
     self.OnStart:Fire()
+
+    Addon.Logger:Info("Events: Event started.")
 end
 
 --[[
@@ -343,6 +346,8 @@ function Addon.Events:EndEvent()
 
     self:_AnnounceEventEnd(winners)
     self.OnEnd:Fire(winners)
+
+    Addon.Logger:Info("Events: Event ended.")
 end
 
 --[[
@@ -421,6 +426,7 @@ end
 ---@param player NoirPlayer The player to add
 function Addon.Events:AddWinningPlayer(player)
     self.WinningPlayers[player.ID] = player
+    Addon.Logger:Info("Events: Added player %s to winners.", Addon.Libs.Player:FormatPlayerName(player))
 end
 
 --[[
@@ -482,6 +488,8 @@ end
 function Addon.Events:CreateTeam(ID, name)
     local team = Addon.Classes.Team:New(ID, name)
     self.Teams[ID] = team
+
+    Addon.Logger:Info("Events: Created team %s (%s).", name, ID)
 
     return team
 end
@@ -559,6 +567,8 @@ function Addon.Events:MakePlayerSpectate(player)
     local spectator = Addon.Classes.Spectator:New(player)
     self.SpectatingPlayers[player.ID] = spectator
 
+    Addon.Logger:Info("Events: Made %s spectate.", Addon.Libs.Player:FormatPlayerName(player))
+
     return spectator
 end
 
@@ -593,6 +603,8 @@ function Addon.Events:StopPlayerSpectating(player)
 
     spectator:Cleanup()
     self.SpectatingPlayers[player.ID] = nil
+
+    Addon.Logger:Info("Events: Stopped %s from spectating.", Addon.Libs.Player:FormatPlayerName(player))
 end
 
 --[[
@@ -678,6 +690,8 @@ function Addon.Events:AddPartakingPlayer(player)
     player:SetAudioMood(4)
     self.PartakingPlayers[player.ID] = player
     self.OnParticipantAdd:Fire(player)
+
+    Addon.Logger:Info("Events: Added %s as a participant.", Addon.Libs.Player:FormatPlayerName(player))
 end
 
 --[[
@@ -735,6 +749,8 @@ function Addon.Events:RemovePartakingPlayer(player, reason)
     else
         self:TeleportPlayerToHub(player)
     end
+
+    Addon.Logger:Info("Events: Removed %s as a participant.", Addon.Libs.Player:FormatPlayerName(player))
 end
 
 Addon.Events.Eliminate = Addon.Events.RemovePartakingPlayer
