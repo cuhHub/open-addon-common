@@ -263,6 +263,18 @@ function Addon.Events:SpawnHub()
 end
 
 --[[
+    Returns if there are enough players to start.
+]]
+---@return boolean
+function Addon.Events:HasEnoughPlayers()
+    if Addon.Flags:IsEnabled("Events.IgnoreMinimumPlayers") then
+        return true
+    end
+
+    return self:GetPlayerCount() >= self.MinimumPlayersToStart
+end
+
+--[[
     Starts the event.
 ]]
 function Addon.Events:StartEvent()
@@ -271,7 +283,7 @@ function Addon.Events:StartEvent()
         return
     end
 
-    if self:GetPlayerCount() < self.MinimumPlayersToStart then
+    if not self:HasEnoughPlayers() then
         Addon.Logger:Warning("Events: Cannot start event, not enough players.")
         return
     end
@@ -302,7 +314,7 @@ function Addon.Events:_AnnounceEventStart()
         Addon.Enums.NotificationType.INFO
     )
 
-    Addon.Interface:SendLiveChat(
+    Addon.API.Server:SendLiveChat(
         "Event",
         "The event has started!",
         ":money_with_wings:",
@@ -356,7 +368,7 @@ function Addon.Events:_AnnounceEventEnd(winners)
         Addon.Enums.NotificationType.SUCCESS
     )
 
-    Addon.Interface:SendLiveChat(
+    Addon.API.Server:SendLiveChat(
         "Event",
         "The event has ended! Winners: "..table.concat(formattedWinners, ", "),
         ":crown:",
@@ -712,7 +724,7 @@ function Addon.Events:RemovePartakingPlayer(player, reason)
             reason
         )
 
-        Addon.Interface:SendLiveChat(
+        Addon.API.Server:SendLiveChat(
             "Event",
             Addon.Libs.Player:FormatPlayerName(player).." has been eliminated.",
             ":x:",
@@ -777,7 +789,7 @@ function Addon.Events:SendAdministrativeAnnouncement(message, ...)
         ...
     )
 
-    Addon.Interface:SendLiveChat(
+    Addon.API.Server:SendLiveChat(
         "Event",
         ... and message:format(...) or message,
         ":loudspeaker:",
@@ -958,13 +970,10 @@ function Addon.Events:CreateEventInfoUI()
 
         Addon.UI:OnUIUpdate(nil, function()
             if not self.HasEventStarted then
-                local playerCount = self:GetPlayerCount()
-                local neededPlayers = self.MinimumPlayersToStart - playerCount
-
                 eventInfo.Text = ("---\ncuhHub\nEvent\n---\n%s:\n%s\n\n%s."):format(
                     self.EventName:upper(),
                     self.EventDescription,
-                    playerCount < self.MinimumPlayersToStart and ("Waiting for %d more player(s)..."):format(neededPlayers) or "Starting soon..."
+                    not self:HasEnoughPlayers() and ("Waiting for %d more player(s)..."):format(self.MinimumPlayersToStart - self:GetPlayerCount()) or "Starting soon..."
                 )
 
                 eventInfo.Y = 0.55
@@ -1052,5 +1061,10 @@ function Addon.Events:RegisterFlags()
     Addon.Flags:RegisterFlag(
         "Events.HubTeleport",
         true
+    )
+
+    Addon.Flags:RegisterFlag(
+        "Events.IgnoreMinimumPlayers",
+        false
     )
 end
