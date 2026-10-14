@@ -250,3 +250,10 @@ end
 function Addon.Classes.Zone:IsAnyIn()
     return next(self:GetEntitiesWithin()) ~= nil
 end
+
+--[[
+    Removes this zone.
+]]
+function Addon.Classes.Zone:Remove()
+    Addon.Zoning:UnregisterZone(self)
+end
