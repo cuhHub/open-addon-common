@@ -173,3 +173,16 @@ Config.SupporterLockdown.WhitelistedTiers = {
     Addon.Enums.APISupporterTier.DiscordBooster,
     Addon.Enums.APISupporterTier.PatreonBacker
 }
+
+--[[
+    Streamable related config.
+]]
+Config.Streamables = {}
+Config.Streamables.UpdateTickInterval = 6
+Config.Streamables.StreamablesPerTickIteration = 10
+
+--[[
+    Env mod related config.  
+]]
+Config.EnvMods = {}
+Config.EnvMods.StreamRadius = 600
