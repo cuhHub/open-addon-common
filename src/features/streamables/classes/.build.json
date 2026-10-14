@@ -1,0 +1,11 @@
+{
+    "build_order" : [
+        "Streamable.lua",
+        "StreamableEntity.lua",
+        "StreamableEntities"
+    ],
+    "ignore" : [],
+    "import_web" : [],
+    "import_local" : [],
+    "import_git" : []
+}
