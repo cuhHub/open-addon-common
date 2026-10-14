@@ -56,10 +56,15 @@ end
 ]]
 ---@param asset Asset The env mod asset
 function Addon.EnvMods:SpawnEnvModAsset(asset)
-    local vehicle = asset:SpawnVehicle()
-    Addon.Janitor:DisposeVehicle(vehicle)
+    Addon.Streamables:CreateStreamable(
+        asset:GetPosition(true),
+        Config.EnvMods.StreamRadius,
+        Addon.Enums.StreamType.StreamInStreamOut,
+        Addon.Enums.StreamSpawningType.UseSpawnPosition,
+        Addon.Streamables:CreateVehicleStreamableEntity(asset)
+    )
 
-    Addon.Logger:Info("EnvMods: Spawned %s", asset:Format())
+    Addon.Logger:Info("EnvMods: Spawned %s as streamable", asset:Format())
 end
 
 --[[
