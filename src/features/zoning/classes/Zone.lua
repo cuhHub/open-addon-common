@@ -179,8 +179,7 @@ function Addon.Classes.Zone:GetIDForEntity(entity)
 end
 
 --[[
-    Checks if the given entity is in the zone.<br>
-    *abstractmethod*
+    Checks if the given entity is in the zone.
 ]]
 function Addon.Classes.Zone:CheckIsEntityIn(entity)
     if not self:CheckIsEntityValid(entity) then
