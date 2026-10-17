@@ -88,6 +88,11 @@ function Addon.Classes.Streamable:Init(ID, spawnPosition, streamRadius, streamTy
         Fired after the streamable is streamed out.
     ]]
     self.OnStreamedOut = Noir.Libraries.Events:Create()
+
+    --[[
+        A closet that is cleaned up when this streamable is streamed out.
+    ]]
+    self.StreamOutCloset = Addon.Janitor:CreateCloset()
 end
 
 --[[
@@ -154,6 +159,8 @@ function Addon.Classes.Streamable:StreamOut()
 
     self.StreamedIn = false
     self.Entity:Despawn()
+
+    self.StreamOutCloset:Cleanup()
 
     self.OnStreamedOut:Fire()
 end
