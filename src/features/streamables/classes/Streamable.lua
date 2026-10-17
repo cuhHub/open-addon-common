@@ -25,8 +25,11 @@
 --[[
     Base class for streamable entities (e.g. vehicles).
 ]]
----@class Streamable: NoirClass
----@field New fun(self: Streamable, ID: integer, spawnPosition: SWMatrix, streamRadius: number, streamType: StreamType, streamSpawningType: StreamSpawningType, entity: StreamableEntity): Streamable
+---@generic T: StreamableEntity
+---@class Streamable<T>: NoirClass
+---@field New fun(self: Streamable, ID: integer, spawnPosition: SWMatrix, streamRadius: number, streamType: StreamType, streamSpawningType: StreamSpawningType, entity: T): Streamable
+---@field Entity T The streamable entity instance
+---@field GetStreamableEntity fun(self: Streamable): T The streamable entity instance
 Addon.Classes.Streamable = Noir.Class("Streamable")
 
 --[[
@@ -138,7 +141,7 @@ function Addon.Classes.Streamable:StreamIn()
     Addon.Logger:Info("Streamable: %s - stream in", self:GetID())
 
     self.StreamedIn = true
-    self.Entity:Spawn(self:DetermineSpawnPosition())
+    self:GetStreamableEntity():Spawn(self:DetermineSpawnPosition())
 
     self.OnStreamedIn:Fire()
 end
@@ -169,7 +172,7 @@ function Addon.Classes.Streamable:StreamOut()
     Addon.Logger:Info("Streamable: %s - stream out", self:GetID())
 
     self.StreamedIn = false
-    self.Entity:Despawn()
+    self:GetStreamableEntity():Despawn()
 
     self.StreamOutCloset:Cleanup()
 
@@ -256,7 +259,6 @@ end
 --[[
     Returns the streamable entity instance.
 ]]
----@return StreamableEntity
 function Addon.Classes.Streamable:GetStreamableEntity()
     return self.Entity
 end

@@ -110,12 +110,13 @@ end
 --[[
     Creates a streamable.
 ]]
+---@generic T: StreamableEntity
 ---@param spawnPosition SWMatrix The spawn position of the streamable
 ---@param streamRadius number The radius of the streamable
 ---@param streamType StreamType The type of streaming to use
 ---@param streamSpawningType StreamSpawningType The spawning type to use
----@param entity StreamableEntity The streamable entity instance
----@return Streamable
+---@param entity T The streamable entity instance
+---@return Streamable<T>
 function Addon.Streamables:CreateStreamable(spawnPosition, streamRadius, streamType, streamSpawningType, entity)
     local streamable = Addon.Classes.Streamable:New(
         Addon.ID:GetID(), spawnPosition, streamRadius,
