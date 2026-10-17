@@ -78,6 +78,16 @@ function Addon.Classes.Streamable:Init(ID, spawnPosition, streamRadius, streamTy
         Whether or not the streamable is streamed in.
     ]]
     self.StreamedIn = false
+
+    --[[
+        Fired after the streamable is streamed in.
+    ]]
+    self.OnStreamedIn = Noir.Libraries.Events:Create()
+
+    --[[
+        Fired after the streamable is streamed out.
+    ]]
+    self.OnStreamedOut = Noir.Libraries.Events:Create()
 end
 
 --[[
@@ -124,6 +134,8 @@ function Addon.Classes.Streamable:StreamIn()
 
     self.StreamedIn = true
     self.Entity:Spawn(self:DetermineSpawnPosition())
+
+    self.OnStreamedIn:Fire()
 end
 
 --[[
@@ -142,6 +154,8 @@ function Addon.Classes.Streamable:StreamOut()
 
     self.StreamedIn = false
     self.Entity:Despawn()
+
+    self.OnStreamedOut:Fire()
 end
 
 --[[
