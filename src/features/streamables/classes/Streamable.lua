@@ -110,7 +110,7 @@ function Addon.Classes.Streamable:Setup()
            return
         end
 
-        self:StreamOut()
+        self:TryStreamOut()
     end)
 end
 
@@ -144,14 +144,25 @@ function Addon.Classes.Streamable:StreamIn()
 end
 
 --[[
-    Streams out.
+    Trys to stream out if rules permit it.
 ]]
-function Addon.Classes.Streamable:StreamOut()
+function Addon.Classes.Streamable:TryStreamOut()
     if not self:IsStreamedIn() then
         return
     end
 
     if self:GetStreamType() == Addon.Enums.StreamType.StreamInOnly then
+        return
+    end
+
+    self:StreamOut()
+end
+
+--[[
+    Streams out.
+]]
+function Addon.Classes.Streamable:StreamOut()
+    if not self:IsStreamedIn() then
         return
     end
 
@@ -259,9 +270,21 @@ function Addon.Classes.Streamable:GetTriggerZone()
 end
 
 --[[
+    Returns the stream-out closet.
+]]
+---@return Closet
+function Addon.Classes.Streamable:GetStreamOutCloset()
+    return self.StreamOutCloset
+end
+
+--[[
     Cleans up the streamable.
 ]]
 function Addon.Classes.Streamable:Cleanup()
+    if self:IsStreamedIn() then
+        self:StreamOut()
+    end
+
     self:GetTriggerZone():Remove()
 end
 
