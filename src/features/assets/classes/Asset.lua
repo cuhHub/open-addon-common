@@ -100,7 +100,11 @@ end
     Formats the asset to a string.
 ]]
 function Addon.Classes.Asset:Format()
-    return ("Asset #%d @ %s"):format(self.Component.id, self.Location:Format())
+    return ("Asset #%d (%s) @ %s"):format(
+        self.Component.id,
+        self.Tags[1] or "No Tags",
+        self.Location:Format()
+    )
 end
 
 --[[
