@@ -95,6 +95,11 @@ function Addon.SupporterPerks:CreatePerk(ID, name, description, supporterTier)
     local perk = Addon.Classes.SupporterPerk:New(ID, name, description, supporterTier)
     self.Perks[ID] = perk
 
+    Addon.Logger:Info(
+        "SupporterPerks: Created supporter perk '%s' (ID: %s) (tier: %s): %s",
+        name, ID, supporterTier, description
+    )
+
     return perk
 end
 
