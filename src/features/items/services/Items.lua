@@ -132,8 +132,9 @@ function Addon.Items:ServiceInit()
     ---@type table<SWSlotNumberEnum, Item|fun(player: NoirPlayer): Item>
     self.StarterItems = {}
 
-    for slot, item in pairs(Config.Items.StarterItems) do
-        self.StarterItems[slot] = self:GetItem(item)
+    for slot, item in pairs(Config.Items.StarterItems) do -- item = item name or function that returns an item for player
+        local _item = type(item) == "string" and self:GetItem(item) or item
+        self.StarterItems[slot] = _item
     end
 end
 
