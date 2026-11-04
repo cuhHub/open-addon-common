@@ -61,6 +61,8 @@ function Addon.Classes.Closet:_HandleCleanup(value)
             value:Remove() ---@diagnostic disable-line
         elseif value:IsA(Noir.Classes.Object) then
             value:Despawn() ---@diagnostic disable-line
+        elseif value:IsA(Noir.Classes.TickIterationProcess) then
+            Noir.Services.TaskService:RemoveTickIterationProcess(value) ---@diagnostic disable-line
         end
     else
         error("Closet", ":_HandleCleanup(): Can't cleanup value due to invalid value type: %s", type(value))
@@ -105,3 +107,4 @@ end
 ---| NoirConnection
 ---| NoirTask
 ---| NoirObject
+---| NoirTickIterationProcess
