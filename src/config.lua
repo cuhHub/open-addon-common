@@ -115,6 +115,7 @@ Config.Cleanup.ObjectTypeExceptions = {
     Weather service related config.
 ]]
 Config.Weather = {}
+Config.Weather.TransitionDuration = 30 -- seconds
 Config.Weather.UpdateIntervalTicks = 20
 Config.Weather.WeatherChangeInterval = 5 * 60 -- seconds
 

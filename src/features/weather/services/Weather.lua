@@ -51,6 +51,12 @@ function Addon.Weather:ServiceInit()
     self.ActiveWeatherPresets = {}
 
     --[[
+        Active transitions, indexed by weather preset type.
+    ]]
+    ---@type table<WeatherPresetTypeEnum, WeatherTransition>
+    self.WeatherTransitions = {}
+
+    --[[
         The current fog.
     ]]
     self.Fog = 0
@@ -106,20 +112,38 @@ function Addon.Weather:UpdateWeather()
         Noir.Services.TaskService.Ticks
     )
 
-    local active = self:GetActiveWeatherPresets()
+    local now = Noir.Services.TaskService:GetTimeSeconds()
 
-    local fogActivePreset = active[Addon.Enums.WeatherPresetType.Fog]
-    local rainActivePreset = active[Addon.Enums.WeatherPresetType.Rain]
-    local windActivePreset = active[Addon.Enums.WeatherPresetType.Wind]
-
-    local lastFog, lastRain, lastWind = self.Fog, self.Rain, self.Wind
-    self.Fog, self.Rain, self.Wind = fogActivePreset:GetValue(context), rainActivePreset:GetValue(context), windActivePreset:GetValue(context)
-
-    if lastFog == self.Fog and lastRain == self.Rain and lastWind == self.Wind then
-        return
-    end
+    self.Fog = self:GetTransitionedWeatherValue(Addon.Enums.WeatherPresetType.Fog, context, now)
+    self.Rain = self:GetTransitionedWeatherValue(Addon.Enums.WeatherPresetType.Rain, context, now)
+    self.Wind = self:GetTransitionedWeatherValue(Addon.Enums.WeatherPresetType.Wind, context, now)
 
     self:UpdateGameWeather()
+end
+
+--[[
+    Returns a preset's current value, applying its transition when active.
+]]
+---@param presetType WeatherPresetTypeEnum The weather channel
+---@param context WeatherHandlerContext The current handler context
+---@param now number The current time in seconds
+---@return number
+function Addon.Weather:GetTransitionedWeatherValue(presetType, context, now)
+    local target = self:GetActiveWeatherPresets()[presetType]:GetValue(context)
+    local transition = self:GetWeatherTransitions()[presetType]
+
+    if not transition then
+        return target
+    end
+
+    local progress = Noir.Libraries.Number:Clamp((now - transition:GetStartedAt()) / transition:GetDuration(), 0, 1)
+
+    if progress >= 1 then
+        self:RemoveWeatherTransition(presetType)
+        return target
+    end
+
+    return Addon.Libs.Math:Lerp(transition:GetStartValue(), target, progress)
 end
 
 --[[
@@ -217,7 +241,27 @@ end
 ]]
 ---@param weatherPresets table<WeatherPresetTypeEnum, WeatherPreset> The weather presets to set
 function Addon.Weather:SetActiveWeatherPresets(weatherPresets)
+    local now = Noir.Services.TaskService:GetTimeSeconds()
+    local values = {
+        [Addon.Enums.WeatherPresetType.Fog] = self.Fog,
+        [Addon.Enums.WeatherPresetType.Rain] = self.Rain,
+        [Addon.Enums.WeatherPresetType.Wind] = self.Wind
+    }
+
+    for presetType, preset in pairs(weatherPresets) do
+        local previous = self:GetActiveWeatherPresets()[presetType]
+
+        if previous ~= preset then
+            if previous and Config.Weather.TransitionDuration > 0 then
+                self:SetWeatherTransition(presetType, values[presetType], now, Config.Weather.TransitionDuration)
+            else
+                self:RemoveWeatherTransition(presetType)
+            end
+        end
+    end
+
     self.ActiveWeatherPresets = weatherPresets
+    self:UpdateWeather()
     self:AnnounceWeather()
 end
 
@@ -235,6 +279,33 @@ function Addon.Weather:CreateWeatherPreset(name, presetType, chance, handler)
     table.insert(self.WeatherPresets, weatherPreset)
 
     return weatherPreset
+end
+
+--[[
+    Sets the transition for a weather preset type.
+]]
+---@param presetType WeatherPresetTypeEnum The weather channel
+---@param value number The weather value at the start of the transition
+---@param now number The start time in seconds
+---@param duration number The transition duration in seconds
+function Addon.Weather:SetWeatherTransition(presetType, value, now, duration)
+    self.WeatherTransitions[presetType] = Addon.Classes.WeatherTransition:New(value, now, duration)
+end
+
+--[[
+    Removes the transition for a weather preset type.
+]]
+---@param presetType WeatherPresetTypeEnum The weather channel
+function Addon.Weather:RemoveWeatherTransition(presetType)
+    self.WeatherTransitions[presetType] = nil
+end
+
+--[[
+    Returns active transitions, indexed by weather preset type.
+]]
+---@return table<WeatherPresetTypeEnum, WeatherTransition>
+function Addon.Weather:GetWeatherTransitions()
+    return self.WeatherTransitions
 end
 
 --[[
