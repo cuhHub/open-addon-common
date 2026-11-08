@@ -42,9 +42,24 @@ Addon.Libs.Commands = Noir.Libraries:Create(
 ---@param pageSize integer The entries per page
 ---@param lineSep string|nil The line separator to use, nil for default
 ---@param callback? fun(message: string): string
-function Addon.Libs.Commands:HandlePaginateList(context, title, list, pageSize, lineSep, callback)
+---@param pageArgIndex integer|nil The index of the page argument. Defaults to 1 if nil
+function Addon.Libs.Commands:HandlePaginateList(context, title, list, pageSize, lineSep, callback, pageArgIndex)
     local pages = Addon.Libs.Table:Paginate(list, pageSize)
-    local pageNumber = Noir.Libraries.Number:Clamp(tonumber(context.Args[1]) or 1, 1, #pages)
+
+    local index = pageArgIndex or 1
+
+    local pageNumber = Noir.Libraries.Number:Clamp(
+        math.floor(tonumber(context.Args[index]) or 1),
+        1,
+        #pages
+    )
+
+    local command = context.Command.Name
+
+    if index > 1 then
+        command = command.." "..table.concat(context.Args, " ", 1, math.min(index - 1, #context.Args))
+    end
+
     local page = pages[pageNumber] ---@type table<integer, string>
 
     local content = ("%s (%d available) (Page %d/%d):\n%s\n\nUse '?%s (page)' to view other pages."):format(
@@ -53,7 +68,7 @@ function Addon.Libs.Commands:HandlePaginateList(context, title, list, pageSize, 
         pageNumber,
         #pages,
         Addon.Libs.String:BulletList(page, "-", lineSep or "\n"),
-        context.Command.Name
+        command
     )
 
     Addon.Message:Send(
