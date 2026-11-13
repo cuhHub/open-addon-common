@@ -108,6 +108,15 @@ function Addon.Streamables:CreateVehicleStreamableEntity(vehicleAsset)
 end
 
 --[[
+    Creates an object streamable entity.
+]]
+---@param spawnCallback ObjectStreamableEntitySpawnCallback The callback used to spawn the object
+---@return ObjectStreamableEntity
+function Addon.Streamables:CreateObjectStreamableEntity(spawnCallback)
+    return Addon.Classes.ObjectStreamableEntity:New(spawnCallback)
+end
+
+--[[
     Creates a streamable.
 ]]
 ---@generic T: StreamableEntity
