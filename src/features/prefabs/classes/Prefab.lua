@@ -25,8 +25,10 @@
 --[[
     Represents a prefab.
 ]]
----@class Prefab: NoirClass
----@field New fun(self: Prefab, name: string): Prefab
+---@generic T: PrefabInstance
+---@class Prefab<T>: NoirClass
+---@field New fun(self: Prefab<T>, name: string): Prefab<T>
+---@field Create fun(self: Prefab<T>): T
 Addon.Classes.Prefab = Noir.Class("Prefab")
 
 --[[
@@ -52,11 +54,6 @@ end
     Creates an instance of the prefab.<br>
     This method is abstract and must be overridden (should return a class instance that inherits from `PrefabInstance`).
 ]]
----@return PrefabInstance
 function Addon.Classes.Prefab:Create()
     error("Addon.Classes.Prefab:CreateInstance()", "This method is abstract and must be overridden.")
 end
-
----@alias AnyPrefab
----| WeightedPrefab
----| Prefab

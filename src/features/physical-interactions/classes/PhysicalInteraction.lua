@@ -26,10 +26,8 @@
     Represents a deployable physical interaction (e.g. inventory, call-in).<br>
     This is meant to be extended.
 ]]
----@class PhysicalInteraction: PrefabInstance
+---@class PhysicalInteraction: PrefabInstance<PhysicalInteractionPrefab>
 ---@field New fun(self: PhysicalInteraction, player: NoirPlayer, prefab: PhysicalInteractionPrefab): PhysicalInteraction
----@field Prefab PhysicalInteractionPrefab
----@field GetPrefab fun(self: PhysicalInteraction): PhysicalInteractionPrefab
 Addon.Classes.PhysicalInteraction = Noir.Class("PhysicalInteraction", Addon.Classes.PrefabInstance)
 
 --[[

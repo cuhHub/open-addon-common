@@ -26,7 +26,7 @@
     A prefab for a physical interaction (e.g. inventory, call-in).<br>
     This is meant to be extended.
 ]]
----@class PhysicalInteractionPrefab: Prefab
+---@class PhysicalInteractionPrefab: Prefab<PhysicalInteraction>
 ---@field New fun(self: PhysicalInteractionPrefab, name: string, lifetime: number): PhysicalInteractionPrefab
 Addon.Classes.PhysicalInteractionPrefab = Noir.Class("PhysicalInteractionPrefab", Addon.Classes.Prefab)
 

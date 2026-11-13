@@ -25,8 +25,9 @@
 --[[
     Represents a prefab that has an RNG weight associated with it.
 ]]
----@class WeightedPrefab: Prefab
----@field New fun(self: WeightedPrefab, name: string, weight: number): WeightedPrefab
+---@generic T: PrefabInstance
+---@class WeightedPrefab<T>: Prefab<T>
+---@field New fun(self: WeightedPrefab<T>, name: string, weight: number): WeightedPrefab<T>
 Addon.Classes.WeightedPrefab = Noir.Class("WeightedPrefab", Addon.Classes.Prefab)
 
 --[[

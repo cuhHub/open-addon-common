@@ -25,14 +25,16 @@
 --[[
     Represents an instance created from a prefab.
 ]]
----@class PrefabInstance: NoirClass
----@field New fun(self: PrefabInstance, prefab: AnyPrefab): PrefabInstance
+---@generic T: Prefab
+---@class PrefabInstance<T>: NoirClass
+---@field New fun(self: PrefabInstance<T>, prefab: T): PrefabInstance<T>
+---@field Prefab T
+---@field GetPrefab fun(self: PrefabInstance<T>): T
 Addon.Classes.PrefabInstance = Noir.Class("PrefabInstance")
 
 --[[
     Initializes new `PrefabInstance` instances.
 ]]
----@param prefab AnyPrefab The prefab this instance was created from
 function Addon.Classes.PrefabInstance:Init(prefab)
     --[[
         The prefab this instance was created from.
@@ -43,7 +45,6 @@ end
 --[[
     Returns the prefab this instance was created from.
 ]]
----@return AnyPrefab
 function Addon.Classes.PrefabInstance:GetPrefab()
     return self.Prefab
 end
