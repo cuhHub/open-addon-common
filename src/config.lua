@@ -187,3 +187,9 @@ Config.Streamables.StreamablesPerTickIteration = 10
 ]]
 Config.EnvMods = {}
 Config.EnvMods.StreamRadius = 600
+
+--[[
+    Stuck related config.
+]]
+Config.Stuck = {}
+Config.Stuck.UnstuckCooldown = 20 -- seconds
