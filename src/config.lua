@@ -193,3 +193,9 @@ Config.EnvMods.StreamRadius = 600
 ]]
 Config.Stuck = {}
 Config.Stuck.UnstuckCooldown = 20 -- seconds
+
+--[[
+    Guides related config.
+]]
+Config.Guides = {}
+Config.Guides.GuidesPerCommandPage = 6
