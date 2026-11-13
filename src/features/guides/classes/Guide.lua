@@ -69,21 +69,7 @@ function Addon.Classes.Guide:Init(ID, name, command, messages)
     ]]
     self.OnEnd = Noir.Libraries.Events:Create()
 
-    local finalMessage = Addon.Guides:CreateGuideMessage(function()
-        local guides = Addon.Guides:GetGuides()
-
-        ---@type table<integer, string>
-        local guidesFormatted = {}
-
-        for _, guide in pairs(guides) do
-            table.insert(guidesFormatted, ("%s - ?%s"):format(guide:GetName(), guide:GetCommand()))
-        end
-
-        local list = Addon.Libs.String:BulletList(guidesFormatted, "*")
-        return "Additional Guides:\n"..list
-    end)
-
-    self:AddMessage(finalMessage)
+    self:AddMessage(Addon.Guides:CreateGuideMessage("To see other guides, type '?guides'."))
 end
 
 --[[

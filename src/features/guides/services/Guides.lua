@@ -316,4 +316,37 @@ function Addon.Guides:CreateCommands()
             state:Cancel()
         end
     )
+
+    Noir.Services.CommandService:CreateCommand(
+        "guides",
+        {"gu"},
+        false,
+        false,
+        false,
+        "Lists all available guides.",
+
+        function(context)
+            if not context.HasPermission then
+                return
+            end
+
+            ---@type table<integer, string>
+            local formattedList = {}
+
+            for _, guide in pairs(self:GetGuides()) do
+                table.insert(formattedList, ("%s (%d messages(s)): Type '?%s'"):format(guide:GetName(), guide:GetMessageCount(), guide:GetCommand()))
+            end
+
+            Addon.Libs.Commands:HandlePaginateList(
+                context,
+                "Guides",
+                formattedList,
+                Config.Guides.GuidesPerCommandPage,
+                nil,
+                function(message)
+                    return message.."\nConsider reading the guides above to get a better understanding of the server."
+                end
+            )
+        end
+    )
 end
